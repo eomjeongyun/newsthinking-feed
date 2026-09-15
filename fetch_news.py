@@ -173,6 +173,38 @@ def andong_sections(used_titles, past_urls):
     return society, tourism
 
 
+ARCHIVE = NEWS_DIR / "andong_tourism.json"  # 안동 관광 keeps accumulating instead of changing daily
+
+
+def decrypt(envelope):
+    key = base64.b64decode(os.environ["NEWS_KEY"])
+    plain = AESGCM(key).decrypt(base64.b64decode(envelope["iv"]), base64.b64decode(envelope["ct"]), None)
+    return json.loads(plain.decode("utf-8"))
+
+
+def load_archive():
+    if not ARCHIVE.exists():
+        return {"items": []}
+    return decrypt(json.loads(ARCHIVE.read_text(encoding="utf-8")))
+
+
+def add_to_archive(articles, origin, added_at):
+    archive = load_archive()
+    known = {item["id"] for item in archive["items"]}
+    added = 0
+    for art in articles:
+        if art["id"] in known:
+            continue
+        item = dict(art, origin=origin, addedAt=added_at)
+        archive["items"].append(item)
+        known.add(art["id"])
+        added += 1
+    archive["updatedAt"] = datetime.datetime.now().isoformat(timespec="seconds")
+    NEWS_DIR.mkdir(exist_ok=True)
+    ARCHIVE.write_text(json.dumps(encrypt(archive)), encoding="utf-8")
+    return added
+
+
 def main():
     today = datetime.date.today()
     force = "--force" in sys.argv
@@ -201,6 +233,7 @@ def main():
     STATE.write_text(json.dumps({"used": sorted(past_hashes)}), encoding="utf-8")
     dates = sorted(p.stem for p in NEWS_DIR.glob("????-??-??.json"))
     (NEWS_DIR / "index.json").write_text(json.dumps({"dates": dates, "updatedAt": data["generatedAt"]}, ensure_ascii=False), encoding="utf-8")
+    add_to_archive(data["andong"]["tourism"], "auto", data["date"])
     log(f"saved {out.name} random={label}:{counts[0]} andong-society={counts[1]} andong-tourism={counts[2]}")
 
 
