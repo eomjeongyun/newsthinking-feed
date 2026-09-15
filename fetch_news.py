@@ -97,6 +97,7 @@ def article_from(url, title_hint="", source_hint=""):
         "title": re.sub(r"\s*[|:-]\s*(연합뉴스|네이버 뉴스)\s*$", "", title),
         "source": source or "",
         "url": url,
+        "linkLabel": "원문 기사",
         "image": image,
         "body": body,
     }
