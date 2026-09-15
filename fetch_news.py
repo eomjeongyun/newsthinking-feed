@@ -24,7 +24,7 @@ RANDOM_TOPICS = [
     ("사회", "society"), ("정치", "politics"), ("경제", "economy"), ("연예", "entertainment"),
     ("국제", "international"), ("문화", "culture"), ("IT·산업", "industry"), ("스포츠", "sports"),
 ]
-SKIP_TITLE = re.compile(r"^\s*\[(사진|포토|그래픽|영상|게시판|인사|부고|날씨|속보)\]|오늘의 주요일정|카드뉴스")
+SKIP_TITLE = re.compile(r"^\s*\[(사진|포토|그래픽|영상|게시판|인사|부고|날씨|속보)\]|오늘의 주요일정|카드뉴스|헤드라인|주요뉴스|뉴스 브리핑|이 시각")
 
 
 def log(msg):
